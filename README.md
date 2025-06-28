@@ -1,122 +1,138 @@
-# Experiments-with-MLFlow
-MLflow is a powerful tool for tracking and managing machine learning experiments. 
+# 🧪 MLflow Experiment Tracking Exploration
+
+This repository is a hands-on guide to using **MLflow** for experiment tracking, including examples of:
+
+- Local and remote tracking
+- Autologging
+- Hyperparameter tuning and parent-child runs
+- Integration with [DagsHub](https://dagshub.com)
 
 ---
 
-## ✅ What Can Be Tracked Using MLflow
+## 📁 Project Structure
 
-### 1. **Metrics**
-- **Accuracy**: Track model accuracy over different runs.
-- **Loss**: Log training and validation loss during the training process.
-- **Precision, Recall, F1-Score**: Useful for classification tasks.
-- **AUC (Area Under Curve)**: For evaluating binary classifiers.
-- **Custom Metrics**: Any numeric value such as RMSE, MAE, etc.
-
-### 2. **Parameters**
-- **Model Hyperparameters**: E.g., `learning_rate`, `n_estimators`, `max_depth`.
-- **Data Processing Parameters**: E.g., train-test split ratio, feature scaling.
-- **Feature Engineering**: Parameters related to transformations or extractions.
-
-### 3. **Artifacts**
-- **Trained Models**: Save and version models.
-- **Model Summaries**: Architecture, parameter counts.
-- **Confusion Matrices**: For evaluating classification performance.
-- **ROC Curves**: Visual ROC plots.
-- **Custom Plots**: Loss curves, feature importances, etc.
-- **Input Data**: Training/testing datasets.
-- **Scripts & Notebooks**: Log source files used.
-- **Environment Files**: `requirements.txt`, `conda.yaml`, etc.
-
-### 4. **Models**
-- **Pickled Models**: `.pkl` files that can be reloaded.
-- **ONNX Models**: For cross-platform deployment.
-- **Custom Models**: Via MLflow’s model interface.
-
-### 5. **Tags**
-- **Run Tags**: Metadata like author, experiment name, model type.
-- **Environment Tags**: E.g., `gpu`, `cloud_provider`.
-
-### 6. **Source Code**
-- **Scripts**: Training scripts or Jupyter notebooks.
-- **Git Commit**: Commit hash to link with a specific code version.
-- **Dependencies**: Library versions and runtime environment.
-
-### 7. **Logging Inputs and Outputs**
-- **Training Data**: Data used for training.
-- **Test Data**: Data used for validation/testing.
-- **Inference Outputs**: Model predictions and outputs.
-
-### 8. **Custom Logging**
-- **Custom Objects**: Any Python object or custom artifact.
-- **Custom Functions**: Log details of any custom pipeline or method.
-
-### 9. **Model Registry**
-- **Model Versioning**: Track multiple versions and their lifecycle stages (`Staging`, `Production`, etc.).
-- **Model Deployment**: Manage deployment status and metadata.
-
-### 10. **Run and Experiment Details**
-- **Run ID**: Unique identifier for each run.
-- **Experiment Name**: Group multiple related runs.
-- **Timestamps**: Start/end times of training.
+| File | Purpose |
+|------|---------|
+| `src/local_tracking.py` | Tracks experiments **locally** using `mlflow ui`. |
+| `src/remote_tracking.py` | Demonstrates how to use **DagsHub** as a remote tracking server. |
+| `src/autolog.py` | Uses **MLflow autologging** to automatically log models, metrics, and params. |
+| `src/hyperparameter_tuning.py` | Logs **parent and child runs** for hyperparameter tuning and compares the metrics in MLflow UI. |
 
 ---
 
-## ⚙️ `mlflow.autolog()` Overview
+## 🔧 Setup Instructions
 
-`mlflow.autolog()` is a convenient utility to automatically log standard ML metadata.
+### 1. Install Required Packages
 
-### ✅ What Is Logged Automatically
+> ✅ Note: `mlflow==2.8.1` is used for compatibility with DagsHub.
 
-1. **Parameters**
-   - E.g., `max_depth`, `learning_rate`, `n_estimators`.
+```bash
+pip install mlflow==2.8.1 scikit-learn dagshub
+```
+---
 
-2. **Metrics**
-   - Accuracy, precision, recall, loss, etc. (depending on framework).
+## 🖥️ Local Experiment Tracking (`local_tracking.py`)
 
-3. **Model**
-   - Automatically logs the trained model.
+This script shows how to track your experiments **locally**:
 
-4. **Artifacts**
-   - Some default plots and summaries.
+### 🔹 Steps:
+1. Start the MLflow UI in your terminal:
 
-5. **Framework-Specific Details**
-   - E.g., early stopping parameters, epochs, optimizers.
+```bash
+mlflow ui
+```
 
-6. **Environment Info**
-   - Installed packages and versions.
+2. Obtain the tracking URI (result of your previous run, usually `http://127.0.0.1:5000`) and update your script at line 10:
 
-7. **Training Data Info**
-   - Size and general info (not full dataset).
+```python
+mlflow.set_tracking_uri("http://127.0.0.1:5000")
+```
 
-8. **Model Signature**
-   - Automatically infers input/output schema.
+3. Run `python local_tracking.py` and view your runs on the MLflow UI in your browser.
 
 ---
 
-### ❌ What Is *Not* Logged Automatically
+## 🌐 Remote Tracking via DagsHub (`remote_tracking.py`)
 
-1. **Custom Metrics**
-   - E.g., F1 Score, RMSE, etc. (must be logged manually).
+This script shows how to use **DagsHub** as your MLflow tracking server.
 
-2. **Custom Artifacts**
-   - Custom plots, reports, or visualizations.
+### 🔹 Steps to Connect Git Repo to DagsHub:
+1. Create an account and create a new repo on [dagshub.com](https://dagshub.com).
+2. Connect your repo to your github repo.
+3. Navigate to **Remote > Experiments** in your DagsHub repo.
+4. Click **go to mlflow UI** for the webpage.
+5. Copy the ```bash import dagshub and dagshub.init(...) ```
 
-3. **Preprocessed Data**
-   - Input/output data must be logged manually if needed.
+![image](https://github.com/user-attachments/assets/7d0b5ee7-90be-49ff-bc18-c0b5519393e3)
 
-4. **Intermediate Model States**
-   - Not captured unless logged explicitly.
 
-5. **Complex Model Structures**
-   - Highly customized or non-standard models may not be logged correctly.
+### 🔹 Update Your Script at line 9-13:
 
-6. **Custom Training Loops**
-   - Not supported if outside the framework’s standard training procedure.
+```python
+import dagshub
+dagshub.init(repo_owner='your_name', repo_name='your_repo_name', mlflow=True)
+mlflow.set_tracking_uri("https://dagshub.com/your_mlflow_UI_URL")
+```
 
-7. **Unsupported Frameworks**
-   - Autologging won’t work if the framework is not supported.
+> ℹ️ **Note:** DagsHub currently supports MLflow **up to v2.8.1**, so I’ve pinned this version.
 
-8. **Custom Hyperparameter Tuning**
-   - Grid search or special tuning outside the expected pattern.
+---
+
+## ⚙️ MLflow Autologging (`autolog.py`)
+
+This script demonstrates the use of MLflow’s **autologging** feature.
+
+```python
+import mlflow.sklearn
+mlflow.sklearn.autolog()
+```
+
+Once enabled, this will automatically log:
+
+- Estimator parameters
+- Evaluation metrics
+- Model artifacts
+- Feature importance (if applicable)
+
+---
+
+## 🔁 Hyperparameter Tuning with Parent-Child Runs (`hyperparameter_tuning.py`)
+
+This script shows how to structure **nested runs** (child runs) under a **parent run** when tuning hyperparameters.
+
+### 🧪 Highlights:
+- Organize each hyperparameter combination as a child run.
+- Automatically record metrics and params for each trial.
+- Use MLflow UI to **compare runs** and **identify the best performing one**.
+
+```python
+   with mlflow.start_run() as parent:
+       grid_search.fit(X_train, y_train)
+   
+       # log all the child runs
+       for i in range(len(grid_search.cv_results_['params'])):
+           with mlflow.start_run(nested=True) as child:
+               mlflow.log_params(grid_search.cv_results_["params"][i])
+               mlflow.log_metric("accuracy", grid_search.cv_results_["mean_test_score"][i])
+```
+
+In the MLflow UI, you’ll be able to:
+- Visualize all child runs under a parent
+![image](https://github.com/user-attachments/assets/19f470f7-c4c9-46ac-923b-731f68053c5a)
+
+- Compare runs using metrics
+![image](https://github.com/user-attachments/assets/9794b668-7b81-4e8a-ae93-da460495d819)
+
+- Identify the best run based on your target metric
+
+---
+
+## ✅ Summary
+
+This repository serves as a reference to:
+- Track experiments locally or remotely
+- Use autologging for faster experiment capture
+- Organize tuning experiments using parent-child runs
+- Connect to **DagsHub** for collaborative ML workflows
 
 
