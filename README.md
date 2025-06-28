@@ -61,7 +61,7 @@ This script shows how to use **DagsHub** as your MLflow tracking server.
 2. Connect your repo to your github repo.
 3. Navigate to **Remote > Experiments** in your DagsHub repo.
 4. Click **go to mlflow UI** for the webpage.
-5. Copy the ```bash import dagshub and dagshub.init(...) ```
+5. Copy the ```import dagshub and dagshub.init(...) ```
 
 ![image](https://github.com/user-attachments/assets/7d0b5ee7-90be-49ff-bc18-c0b5519393e3)
 
