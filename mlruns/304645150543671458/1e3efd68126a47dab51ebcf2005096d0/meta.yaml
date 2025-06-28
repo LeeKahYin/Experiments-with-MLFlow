@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/kyin1/Documents/MLOps/Vikash_Das/Experiments-with-MLFlow/mlruns/304645150543671458/1e3efd68126a47dab51ebcf2005096d0/artifacts
+end_time: 1751091118592
+entry_point_name: ''
+experiment_id: '304645150543671458'
+lifecycle_stage: active
+run_id: 1e3efd68126a47dab51ebcf2005096d0
+run_name: languid-worm-871
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1751091114250
+status: 3
+tags: []
+user_id: kyin1
